@@ -56,6 +56,7 @@ class GameFragment : Fragment() {
         binding.correctButton.setOnClickListener { viewModel.onCorrect() }
         binding.skipButton.setOnClickListener { viewModel.onSkip() }
 
+        //Don't worry about cleaning up in onDestroy, LiveData's lifecycle awareness does this automatically
         viewModel.score.observe(this, Observer { newScore ->
             binding.scoreText.text = newScore.toString()
         })

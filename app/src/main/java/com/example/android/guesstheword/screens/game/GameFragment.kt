@@ -56,8 +56,11 @@ class GameFragment : Fragment() {
         //The ViewModel gets created by the Lifecycle library. This method will retrieve a
         //pre-existing GameViewModel
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
-        binding.correctButton.setOnClickListener { viewModel.onCorrect() }
-        binding.skipButton.setOnClickListener { viewModel.onSkip() }
+
+        binding.gameViewModel = viewModel
+        //Redundant thanks to adding onClickListeners to the layout file
+        //binding.correctButton.setOnClickListener { viewModel.onCorrect() }
+        //binding.skipButton.setOnClickListener { viewModel.onSkip() }
 
         //Don't worry about cleaning up in onDestroy, LiveData's lifecycle awareness does this automatically
         viewModel.score.observe(this, Observer { newScore ->

@@ -16,13 +16,22 @@
 
 package com.example.android.guesstheword.screens.game
 
-import android.util.Log
+import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 private const val TAG = "GameViewModel"
 class GameViewModel : ViewModel() {
+    companion object {
+        // These represent different important times
+        // This is when the game is over
+        const val DONE = 0L
+        // This is the number of milliseconds in a second
+        const val ONE_SECOND = 1000L
+        // This is the total time of the game - 45 seconds
+        const val COUNTDOWN_TIME = 45000L
+    }
     // The current word - it's *Mutable*LiveData to allow for setters to be called on it
     private val inWord = MutableLiveData<String>()
     val word : LiveData<String>
@@ -33,23 +42,42 @@ class GameViewModel : ViewModel() {
     val score : LiveData<Int>
         get() = inScore //return internal score
 
-    private val inEGF = MutableLiveData<Boolean>()
+    private val inEventGameFinish = MutableLiveData<Boolean>()
     val eventGameFinish : LiveData<Boolean>
-        get() = inEGF
+        get() = inEventGameFinish
+
+    private val timer : CountDownTimer
+    private val inCurrentTime = MutableLiveData<Long>()
+    val currentTime : LiveData<Long>
+        get() = inCurrentTime
 
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
 
     init {
-        inEGF.value = false
+        inEventGameFinish.value = false
+
         resetList()
         nextWord()
         inScore.value = 0
+        timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND) {
+            override fun onTick(millisUntilFinished: Long) {
+                //Needs to be divided by 1,000, otherwise it looks like it's counting down 1,000 times faster than real life
+                inCurrentTime.value = millisUntilFinished/ ONE_SECOND
+            }
+
+            override fun onFinish() {
+                inCurrentTime.value = DONE
+                inEventGameFinish.value = true
+            }
+        }
+        timer.start()
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.i(TAG, "GameViewModel destroyed")
+        //Don't forget to clean up after yourself
+        timer.cancel()
     }
 
     /**
@@ -70,17 +98,15 @@ class GameViewModel : ViewModel() {
     private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
-            //TODO: Re-integrate gameFinished()
-            inEGF.value = true
-        } else {
-            inWord.value = wordList.removeAt(0)
+            resetList() //The game won't end just because all of the words have been guessed
         }
-        //updateWordText()
-        //updateScoreText()
+        inWord.value = wordList.removeAt(0)
     }
-    /** Informs Observers that the finish has been handled**/
+
+    /** Informs Observers that the finish has been handled, and stops the finish event being
+     * triggered by every screen configuration change. **/
     fun onGameFinishComplete() {
-        inEGF.value = false
+        inEventGameFinish.value = false
     }
     /** Methods for buttons presses **/
     fun onSkip() {

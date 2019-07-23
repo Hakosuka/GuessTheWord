@@ -17,6 +17,7 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -61,6 +62,9 @@ class GameFragment : Fragment() {
         //Don't worry about cleaning up in onDestroy, LiveData's lifecycle awareness does this automatically
         viewModel.score.observe(this, Observer { newScore ->
             binding.scoreText.text = newScore.toString()
+        })
+        viewModel.currentTime.observe(this, Observer { newTime ->
+            binding.timerText.text = DateUtils.formatElapsedTime(newTime)
         })
         viewModel.word.observe(this, Observer { newWord ->
             binding.wordText.text = newWord

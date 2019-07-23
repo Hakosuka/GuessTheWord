@@ -58,20 +58,22 @@ class GameFragment : Fragment() {
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
         binding.gameViewModel = viewModel
+        //Data binding is now lifeycle-aware
+        binding.setLifecycleOwner(this)
         //Redundant thanks to adding onClickListeners to the layout file
         //binding.correctButton.setOnClickListener { viewModel.onCorrect() }
         //binding.skipButton.setOnClickListener { viewModel.onSkip() }
 
         //Don't worry about cleaning up in onDestroy, LiveData's lifecycle awareness does this automatically
-        viewModel.score.observe(this, Observer { newScore ->
+        /*viewModel.score.observe(this, Observer { newScore ->
             binding.scoreText.text = newScore.toString()
-        })
+        })*/
         viewModel.currentTime.observe(this, Observer { newTime ->
             binding.timerText.text = DateUtils.formatElapsedTime(newTime)
         })
-        viewModel.word.observe(this, Observer { newWord ->
+        /*viewModel.word.observe(this, Observer { newWord ->
             binding.wordText.text = newWord
-        })
+        })*/
         viewModel.eventGameFinish.observe(this, Observer { hasFinished ->
             if(hasFinished) {
                 //gameFinished()
@@ -79,8 +81,6 @@ class GameFragment : Fragment() {
                 val action = GameFragmentDirections.actionGameToScore(currentScore)
                 //action.setScore(currentScore)
                 findNavController(this).navigate(action)
-                Toast.makeText(this.activity, "Game has finished, you scored ${score_text.text}!",
-                        Toast.LENGTH_LONG).show()
                 viewModel.onGameFinishComplete()
             }
         })

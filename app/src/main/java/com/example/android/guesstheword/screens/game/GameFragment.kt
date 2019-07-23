@@ -67,11 +67,11 @@ class GameFragment : Fragment() {
         //Don't worry about cleaning up in onDestroy, LiveData's lifecycle awareness does this automatically
         /*viewModel.score.observe(this, Observer { newScore ->
             binding.scoreText.text = newScore.toString()
-        })*/
+        })
         viewModel.currentTime.observe(this, Observer { newTime ->
             binding.timerText.text = DateUtils.formatElapsedTime(newTime)
         })
-        /*viewModel.word.observe(this, Observer { newWord ->
+        viewModel.word.observe(this, Observer { newWord ->
             binding.wordText.text = newWord
         })*/
         viewModel.eventGameFinish.observe(this, Observer { hasFinished ->

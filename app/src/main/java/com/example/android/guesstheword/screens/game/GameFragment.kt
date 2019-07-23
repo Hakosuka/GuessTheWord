@@ -21,6 +21,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -28,6 +29,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+import kotlinx.android.synthetic.main.game_fragment.*
 
 /**
  * Fragment where the game is played
@@ -63,16 +65,18 @@ class GameFragment : Fragment() {
         viewModel.word.observe(this, Observer { newWord ->
             binding.wordText.text = newWord
         })
+        viewModel.eventGameFinish.observe(this, Observer { hasFinished ->
+            if(hasFinished) {
+                //gameFinished()
+                val currentScore = viewModel.score.value ?: 0
+                val action = GameFragmentDirections.actionGameToScore(currentScore)
+                //action.setScore(currentScore)
+                findNavController(this).navigate(action)
+                Toast.makeText(this.activity, "Game has finished, you scored ${score_text.text}!",
+                        Toast.LENGTH_LONG).show()
+                viewModel.onGameFinishComplete()
+            }
+        })
         return binding.root
-    }
-
-    /**
-     * Called when the game is finished. Because it needs access to navigation, it needs to be
-     * in the Fragment, not the ViewModel.
-     */
-    fun gameFinished() {
-        val currentScore = viewModel.score.value ?: 0
-        val action = GameFragmentDirections.actionGameToScore(currentScore)
-        findNavController(this).navigate(action)
     }
 }

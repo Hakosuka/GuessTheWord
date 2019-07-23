@@ -33,10 +33,15 @@ class GameViewModel : ViewModel() {
     val score : LiveData<Int>
         get() = inScore //return internal score
 
+    private val inEGF = MutableLiveData<Boolean>()
+    val eventGameFinish : LiveData<Boolean>
+        get() = inEGF
+
     // The list of words - the front of the list is the next word to guess
     private lateinit var wordList: MutableList<String>
+
     init {
-        Log.i(TAG, "GameViewModel created") //Yes, I know Timber's a thing
+        inEGF.value = false
         resetList()
         nextWord()
         inScore.value = 0
@@ -66,13 +71,17 @@ class GameViewModel : ViewModel() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
             //TODO: Re-integrate gameFinished()
+            inEGF.value = true
         } else {
             inWord.value = wordList.removeAt(0)
         }
         //updateWordText()
         //updateScoreText()
     }
-
+    /** Informs Observers that the finish has been handled**/
+    fun onGameFinishComplete() {
+        inEGF.value = false
+    }
     /** Methods for buttons presses **/
     fun onSkip() {
         inScore.value = (score.value)?.minus(1)
